@@ -1,9 +1,18 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Card, IconButton, Text } from 'react-native-paper';
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Text,
+} from 'react-native';
+import { Card, IconButton } from 'react-native-paper';
 import useNotes from '../hooks/useNotes';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function NotesListScreen() {
   const router = useRouter();
@@ -11,8 +20,17 @@ export default function NotesListScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      loadNotes();
-    }, [loadNotes])
+      const verifyTokenAndLoadNotes = async () => {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+          router.replace('/login');
+        } else {
+          loadNotes();
+        }
+      };
+
+      verifyTokenAndLoadNotes();
+    }, [])
   );
 
   const handleEditNote = (noteId: number) => {
@@ -25,8 +43,8 @@ export default function NotesListScreen() {
       '¿Estás seguro de que quieres eliminar esta nota?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Eliminar', 
+        {
+          text: 'Eliminar',
           style: 'destructive',
           onPress: async () => {
             try {
@@ -34,10 +52,15 @@ export default function NotesListScreen() {
             } catch (error) {
               Alert.alert('Error', 'No se pudo eliminar la nota');
             }
-          }
-        }
+          },
+        },
       ]
     );
+  };
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('token');
+    router.replace('/login');
   };
 
   if (isLoading) {
@@ -58,21 +81,23 @@ export default function NotesListScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Botón logout arriba */}
+      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+        <Text style={styles.logoutText}>Cerrar sesión</Text>
+      </TouchableOpacity>
+
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {isLoading ? (
           <Text>Cargando notas...</Text>
         ) : notes.length === 0 ? (
           <Text style={styles.emptyText}>No hay notas creadas</Text>
         ) : (
-          notes.map(note => (
+          notes.map((note) => (
             <Card key={note.id} style={styles.card}>
-              <Card.Title
-                title={note.titulo}
-                titleStyle={styles.cardTitle}
-              />
+              <Card.Title title={note.titulo} titleStyle={styles.cardTitle} />
               <Card.Content>
-                <Text 
-                  numberOfLines={3} 
+                <Text
+                  numberOfLines={3}
                   ellipsizeMode="tail"
                   style={styles.cardContent}
                 >
@@ -97,9 +122,9 @@ export default function NotesListScreen() {
           ))
         )}
       </ScrollView>
-      
+
       {/* Floating Action Button */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.fab}
         onPress={() => router.push('/create-note')}
       >
@@ -119,19 +144,19 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 16,
   },
-  statusContainer: {
-    marginRight: 16,
-  },
-  completedText: {
-    color: 'green',
-  },
-  pendingText: {
-    color: 'orange',
-  },
   container: {
     flex: 1,
     padding: 16,
     backgroundColor: '#f5f5f5',
+  },
+  logoutButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 10,
+  },
+  logoutText: {
+    color: '#6200ee',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   scrollContainer: {
     paddingBottom: 80,
