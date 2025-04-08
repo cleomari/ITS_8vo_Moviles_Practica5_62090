@@ -1,5 +1,16 @@
+// login.tsx
 import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, TouchableOpacity, Text, Alert, KeyboardAvoidingView, Platform, ImageBackground } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ImageBackground,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { api } from '../services/api';
@@ -30,7 +41,7 @@ export default function LoginScreen() {
       setLoading(true);
       const response = await api.login(username, password);
       await AsyncStorage.setItem('token', response.token);
-      router.replace('/'); // redirige a pantalla principal
+      router.replace('/');
     } catch (error) {
       Alert.alert('Error', 'Usuario o contraseña incorrectos');
     } finally {
@@ -39,16 +50,12 @@ export default function LoginScreen() {
   };
 
   return (
-    <ImageBackground
-      source={require('../assets/images/adaptive-icon.png')}
-      style={styles.background}
-      resizeMode="cover"
-    >
+    <View style={styles.background}>
       <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <Text style={styles.title}>Bienvenido 👋</Text>
+        <Text style={styles.title}>Bienvenido de nuevo 💌</Text>
         <TextInput
           placeholder="Correo electrónico"
-          placeholderTextColor="#ccc"
+          placeholderTextColor="#a88"
           style={styles.input}
           value={username}
           onChangeText={setUsername}
@@ -56,7 +63,7 @@ export default function LoginScreen() {
         />
         <TextInput
           placeholder="Contraseña"
-          placeholderTextColor="#ccc"
+          placeholderTextColor="#a88"
           style={styles.input}
           value={password}
           onChangeText={setPassword}
@@ -69,51 +76,61 @@ export default function LoginScreen() {
           <Text style={styles.linkText}>¿No tienes cuenta? Regístrate</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
-    </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   background: {
     flex: 1,
+    backgroundColor: '#fcefe9',
     justifyContent: 'center',
   },
   container: {
     padding: 24,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    margin: 16,
-    borderRadius: 12,
+    backgroundColor: '#fff7f0',
+    margin: 24,
+    borderRadius: 16,
+    shadowColor: '#d9a7a0',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 26,
+    fontWeight: '600',
     marginBottom: 24,
-    color: '#fff',
+    color: '#7b4b3a',
     textAlign: 'center',
   },
   input: {
     backgroundColor: '#fff',
-    borderRadius: 8,
+    borderColor: '#e0cfc2',
+    borderWidth: 1,
+    borderRadius: 10,
     padding: 14,
     marginBottom: 12,
     fontSize: 16,
+    color: '#3d2e29',
   },
   button: {
-    backgroundColor: '#6200ee',
+    backgroundColor: '#d7a89b',
     padding: 14,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: 'center',
     marginTop: 12,
-    marginBottom: 8,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: 'bold',
   },
   linkText: {
-    color: '#ccc',
+    color: '#a88',
     textAlign: 'center',
     marginTop: 12,
     textDecorationLine: 'underline',
+    fontSize: 14,
   },
 });
